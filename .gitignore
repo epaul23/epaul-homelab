@@ -1,0 +1,10 @@
+.env
+*.env
+!.env.example
+
+data/
+backups/
+
+#Immich data
+services/immich/library/
+services/immich/postgres/
