@@ -8,3 +8,9 @@ backups/
 #Immich data
 services/immich/library/
 services/immich/postgres/
+
+# AdGuard Home runtime state and generated configuration
+services/adguard-home/conf/*
+!services/adguard-home/conf/.gitkeep
+services/adguard-home/work/*
+!services/adguard-home/work/.gitkeep
