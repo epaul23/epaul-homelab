@@ -74,3 +74,5 @@ services:
 
 volumes:
   model-cache:
+  immich-media:
+  immich-db:
