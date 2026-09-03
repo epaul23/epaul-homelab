@@ -1,0 +1,23 @@
+services:
+  docker-stats:
+    image: lscr.io/linuxserver/socket-proxy:latest
+    container_name: docker-stats
+    restart: unless-stopped
+
+    environment:
+      CONTAINERS: "1"
+      INFO: "1"
+      EVENTS: "1"
+      PING: "1"
+      VERSION: "1"
+      POST: "0"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    networks:
+      - homarr-socket-proxy
+
+networks:
+  homarr-socket-proxy:
+    external: true

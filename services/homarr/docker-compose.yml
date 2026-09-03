@@ -1,0 +1,28 @@
+services:
+  homarr:
+    container_name: homarr
+    image: ghcr.io/homarr-labs/homarr:latest
+    restart: unless-stopped
+
+    environment:
+      SECRET_ENCRYPTION_KEY: ${SECRET_ENCRYPTION_KEY}
+      DOCKER_HOSTNAMES: docker-stats
+      DOCKER_PORTS: "2375"
+
+    ports:
+      - "7575:7575"
+
+    volumes:
+      - homarr_appdata:/appdata
+
+    networks:
+      - default
+      - homarr-socket-proxy
+
+volumes:
+  homarr_appdata:
+
+networks:
+  default:
+  homarr-socket-proxy:
+    external: true

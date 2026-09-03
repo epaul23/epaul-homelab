@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>G-RAID MAIN</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/dashboard.js" defer></script>
+</head>
+<body>
+  <main>
+    <header class="top">
+      <div>
+        <div class="eyebrow">HomeLab Storage</div>
+        <h1 class="title">G-RAID MAIN</h1>
+      </div>
+
+      <div class="live">
+        <i class="dot" id="dot"></i>
+        <span id="connection">Live monitoring</span>
+      </div>
+    </header>
+
+    <section class="hero">
+      <article class="card temp">
+        <div>
+          <div class="temp-label">G-RAID temperature</div>
+          <div class="temp-value">
+            <span id="temperature">--</span><span class="degree">&deg;C</span>
+          </div>
+          <div class="state unknown" id="state">Checking...</div>
+        </div>
+
+        <div class="gauge" id="gauge">
+          <span><strong id="gaugeValue">--&deg;</strong>thermal</span>
+        </div>
+      </article>
+
+      <article class="card details">
+        <div class="metric">
+          <small>Array</small>
+          <strong id="raid">RAID 1</strong>
+        </div>
+
+        <div class="metric">
+          <small>Health</small>
+          <strong id="health">Checking...</strong>
+        </div>
+
+        <div class="metric">
+          <small>Power-on time</small>
+          <strong id="hours">--</strong>
+        </div>
+
+        <div class="metric">
+          <small>Windows status</small>
+          <strong id="operation">--</strong>
+        </div>
+      </article>
+    </section>
+
+    <div class="temp-warning" id="warning">
+      Temperature is 60&deg;C or higher. Check the G-RAID fan and airflow.
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <footer class="footer">
+      <span id="model">SanDisk G-RAID MIRROR</span>
+      <span>
+        Updated <span id="updated">--</span>
+        &middot; refreshes every 15 sec
+      </span>
+    </footer>
+  </main>
+</body>
+</html>
