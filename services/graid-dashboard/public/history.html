@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>G-RAID Temperature History</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/history.js" defer></script>
+</head>
+<body class="history-page">
+  <main class="history-shell">
+    <header class="history-header">
+      <div>
+        <div class="eyebrow">G-RAID temperature</div>
+        <h1 class="history-title">Last 24 hours</h1>
+      </div>
+      <div class="live">
+        <i class="dot" id="historyDot"></i>
+        <span id="historyStatus">Loading history</span>
+      </div>
+    </header>
+
+    <article class="card history-card">
+      <div class="history-chart-wrap">
+        <canvas id="temperatureChart" aria-label="G-RAID temperature during the last 24 hours"></canvas>
+        <div class="history-empty" id="historyEmpty">Collecting the first readings...</div>
+      </div>
+
+      <div class="history-stats">
+        <div><small>Minimum</small><strong id="historyMin">--&deg;</strong></div>
+        <div><small>Average</small><strong id="historyAvg">--&deg;</strong></div>
+        <div><small>Maximum</small><strong id="historyMax">--&deg;</strong></div>
+      </div>
+    </article>
+
+    <div class="error" id="historyError"></div>
+  </main>
+</body>
+</html>
+

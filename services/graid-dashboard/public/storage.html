@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>G-RAID Storage</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/storage.js" defer></script>
+</head>
+<body class="storage-page">
+  <main class="storage-shell">
+    <header class="storage-header">
+      <div>
+        <div class="eyebrow">G-RAID capacity</div>
+        <h1 class="storage-title">Storage</h1>
+      </div>
+      <div class="live">
+        <i class="dot" id="storageDot"></i>
+        <span id="storageStatus">Loading storage</span>
+      </div>
+    </header>
+
+    <article class="card storage-card">
+      <div class="storage-ring" id="storageRing">
+        <div class="storage-ring-core">
+          <strong id="usedPercent">--%</strong>
+          <span>used</span>
+        </div>
+      </div>
+
+      <div class="storage-details">
+        <div class="storage-name-row">
+          <div>
+            <small>Volume</small>
+            <strong>G-RAID MAIN</strong>
+          </div>
+          <span class="storage-health" id="storageHealth">Checking</span>
+        </div>
+
+        <div class="storage-metrics">
+          <div><small>Used</small><strong id="usedSpace">--</strong></div>
+          <div><small>Available</small><strong id="freeSpace">--</strong></div>
+          <div><small>Total</small><strong id="totalSpace">--</strong></div>
+        </div>
+
+        <div class="folder-breakdown" id="folderBreakdown">
+          <span class="folder-loading">Calculating folder sizes...</span>
+        </div>
+      </div>
+    </article>
+
+    <div class="space-warning" id="spaceWarning">Storage is almost full. Consider freeing some space.</div>
+    <div class="error" id="storageError"></div>
+  </main>
+</body>
+</html>
