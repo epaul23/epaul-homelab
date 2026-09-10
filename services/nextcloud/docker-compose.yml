@@ -1,0 +1,60 @@
+services:
+  db:
+    image: mariadb:11.8
+    container_name: nextcloud-db
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED
+    volumes:
+      - nextcloud_db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+
+  redis:
+    image: redis:alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+
+  app:
+    image: nextcloud:apache
+    container_name: nextcloud
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:80"
+    volumes:
+      - nextcloud_html:/var/www/html
+      - nextcloud_data:/var/www/html/data
+      - /mnt/e/Nextcloud/Files:/external/graid
+    environment:
+      OVERWRITEPROTOCOL: https
+      OVERWRITEHOST: acer-server.tailnet.example:8443
+      OVERWRITECLIURL: https://acer-server.tailnet.example:8443
+      NEXTCLOUD_TRUSTED_DOMAINS: acer-server.tailnet.example
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_HOST: db
+      REDIS_HOST: redis
+    depends_on:
+      - db
+      - redis
+
+  cron:
+    image: nextcloud:apache
+    container_name: nextcloud-cron
+    restart: unless-stopped
+    entrypoint: /cron.sh
+    volumes:
+      - nextcloud_html:/var/www/html
+      - nextcloud_data:/var/www/html/data
+      - /mnt/e/Nextcloud/Files:/external/graid
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  nextcloud_db:
+  nextcloud_html:
+  nextcloud_data:
