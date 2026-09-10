@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>G-RAID Overview</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/overview.js" defer></script>
+</head>
+<body class="overview-page">
+  <main class="overview-shell">
+    <header class="overview-header">
+      <div>
+        <div class="eyebrow">HomeLab storage</div>
+        <h1 class="overview-title">G-RAID MAIN</h1>
+      </div>
+      <div class="live">
+        <i class="dot" id="overviewDot"></i>
+        <span id="overviewConnection">Loading</span>
+      </div>
+    </header>
+
+    <section class="overview-grid">
+      <article class="card overview-temperature">
+        <div class="overview-card-label">Temperature</div>
+        <div class="overview-temp-row">
+          <div class="overview-temp-value"><span id="overviewTemp">--</span><small>&deg;C</small></div>
+          <span class="state unknown" id="overviewTempState">Checking</span>
+        </div>
+        <div class="overview-drive-meta">
+          <span><small>Array</small><strong id="overviewRaid">RAID 1</strong></span>
+          <span><small>Health</small><strong id="overviewHealth">--</strong></span>
+          <span><small>Power-on</small><strong id="overviewHours">--</strong></span>
+        </div>
+      </article>
+
+      <article class="card overview-capacity">
+        <div class="overview-storage-ring" id="overviewStorageRing">
+          <div><strong id="overviewUsedPercent">--%</strong><span>used</span></div>
+        </div>
+        <div class="overview-capacity-copy">
+          <div class="overview-card-label">Capacity</div>
+          <strong class="overview-free" id="overviewFree">--</strong>
+          <span class="overview-free-label">available of <b id="overviewTotal">--</b></span>
+          <div class="overview-folders" id="overviewFolders">
+            <span class="folder-loading">Loading folders...</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card overview-chart-card">
+        <div class="overview-chart-header">
+          <div>
+            <div class="overview-card-label">Temperature trend</div>
+            <strong>Last 24 hours</strong>
+          </div>
+          <div class="overview-chart-stats">
+            <span><small>Min</small><strong id="overviewMin">--&deg;</strong></span>
+            <span><small>Avg</small><strong id="overviewAvg">--&deg;</strong></span>
+            <span><small>Max</small><strong id="overviewMax">--&deg;</strong></span>
+          </div>
+        </div>
+        <div class="overview-chart-wrap">
+          <canvas id="overviewChart" aria-label="G-RAID temperature over the last 24 hours"></canvas>
+          <div class="overview-chart-empty" id="overviewChartEmpty">Collecting readings...</div>
+        </div>
+      </article>
+    </section>
+
+    <div class="error overview-error" id="overviewError"></div>
+  </main>
+</body>
+</html>

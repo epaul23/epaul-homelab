@@ -391,6 +391,12 @@ try {
                 '/storage.html' {
                     Send-PublicFile -Response $context.Response -FileName 'storage.html' -ContentType 'text/html; charset=utf-8'
                 }
+                '/overview.js' {
+                    Send-PublicFile -Response $context.Response -FileName 'overview.js' -ContentType 'application/javascript; charset=utf-8'
+                }
+                '/overview.html' {
+                    Send-PublicFile -Response $context.Response -FileName 'overview.html' -ContentType 'text/html; charset=utf-8'
+                }
                 '/favicon.ico' {
                     Send-Text -Response $context.Response -Text '' -ContentType 'image/x-icon' -StatusCode 204
                 }
