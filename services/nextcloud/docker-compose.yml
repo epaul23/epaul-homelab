@@ -29,9 +29,9 @@ services:
       - /mnt/e/Nextcloud/Files:/external/graid
     environment:
       OVERWRITEPROTOCOL: https
-      OVERWRITEHOST: acer-server.tailnet.example:8443
-      OVERWRITECLIURL: https://acer-server.tailnet.example:8443
-      NEXTCLOUD_TRUSTED_DOMAINS: acer-server.tailnet.example
+      OVERWRITEHOST: ${NEXTCLOUD_PUBLIC_HOST}
+      OVERWRITECLIURL: ${NEXTCLOUD_PUBLIC_URL}
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAIN}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: nextcloud
       MYSQL_USER: nextcloud
