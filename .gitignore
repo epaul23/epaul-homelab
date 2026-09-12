@@ -16,3 +16,8 @@ services/adguard-home/work/*
 !services/adguard-home/work/.gitkeep
 services/plex/config/
 services/plex/transcode/
+
+# Jellyfin runtime data
+services/jellyfin/config/
+services/jellyfin/cache/
+services/jellyfin/windows-data-copy/
