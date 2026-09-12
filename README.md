@@ -44,6 +44,11 @@ The goal was to learn with hardware I already had instead of buying a ready-made
 | Homepage         | Another dashboard I experimented with                       |
 | Docker Stats     | Gives Homarr limited access to Docker stats                 |
 | G-RAID Dashboard | Custom storage, health, temperature, and history monitoring |
+| Plex             | Self-hosted movie and TV media server                       |
+| Jellyfin         | Self-hosted movie and TV media server (open-source)         |
+| Nextcloud        | Self-hosted file access and sync                            |
+| Karakeep         | Bookmarking and read-it-later service                       |
+| Dozzle           | Docker container log viewer                                 |
 
 Most services run in Docker.
 
@@ -52,26 +57,37 @@ The G-RAID dashboard is different. It runs directly through Windows PowerShell b
 Tailscale gives me private remote access to Acer. SSH lets me manage it from the Legion without moving to the server.
 
 ## How it fits together
-
 ```text
-Remote access
+ Remote access
      │
   Tailscale
      │
      ▼
- Acer Server
- ├── Docker
- │   ├── Immich
- │   ├── AdGuard Home
- │   ├── Homarr
- │   ├── Uptime Kuma
- │   └── Glances
- │
- └── Windows PowerShell
-     └── G-RAID Dashboard
-              │
-              ▼
-        G-RAID RAID 1
+Acer Server
+├── Docker
+│   ├── Dashboards & monitoring
+│   │   ├── Homarr
+│   │   ├── Homepage
+│   │   ├── Uptime Kuma
+│   │   ├── Glances
+│   │   ├── Dozzle
+│   │   └── Docker Stats
+│   │
+│   ├── Data & media
+│   │   ├── Immich
+│   │   ├── Jellyfin
+│   │   ├── Plex
+│   │   ├── Nextcloud
+│   │   └── Karakeep
+│   │
+│   └── Network
+│       └── AdGuard Home
+│
+└── Windows PowerShell
+    └── G-RAID Dashboard
+             │
+             ▼
+       G-RAID RAID 1
 ```
 ## Custom G-RAID monitoring
 
@@ -133,6 +149,8 @@ That also pushed me to add historical temperature monitoring instead of relying 
 The G-RAID MIRROR currently runs two drives in RAID 1.
 
 That gives me protection against one drive failing, but RAID is not a backup. I still want separate copies of important files as the storage setup grows.
+
+Jellyfin and Plex read their movie and TV libraries from the G-RAID, and Nextcloud also uses storage on the array.
 
 ## Next experiments
 
