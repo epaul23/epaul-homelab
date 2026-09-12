@@ -6,6 +6,10 @@ This is my hands-on project for learning Docker, networking, storage, and self-h
 
 The Acer runs the services. The Legion is my main command centre, and my phone gives me remote access when I’m away. GitHub holds the setup, the notes, and the evidence that “it works” usually needs another test.
 
+## Homelab dashboard
+
+![Emil's Homelab dashboard](docs/images/homelab-dashboard.png)
+
 ## The hardware
 
 **Acer — the home server**
