@@ -14,3 +14,5 @@ services/adguard-home/conf/*
 !services/adguard-home/conf/.gitkeep
 services/adguard-home/work/*
 !services/adguard-home/work/.gitkeep
+services/plex/config/
+services/plex/transcode/

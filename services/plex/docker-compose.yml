@@ -1,0 +1,16 @@
+services:
+  plex:
+    image: plexinc/pms-docker:latest
+    container_name: plex
+    ports:
+      - "32400:32400"
+    environment:
+      - TZ=America/Moncton
+
+    volumes:
+      - ./config:/config
+      - ./transcode:/transcode
+      - /mnt/e/Media/Movies:/data/movies:ro
+      - "/mnt/e/Media/TV Shows:/data/tv:ro"
+
+    restart: unless-stopped
