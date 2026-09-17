@@ -21,3 +21,4 @@ services/plex/transcode/
 services/jellyfin/config/
 services/jellyfin/cache/
 services/jellyfin/windows-data-copy/
+services/qbittorrent/config/
