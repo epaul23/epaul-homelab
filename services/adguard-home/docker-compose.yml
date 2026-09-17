@@ -5,8 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000/tcp"
-      - "53:53/tcp"
-      - "53:53/udp"
+      - "192.168.1.2:53:53/tcp"
+      - "192.168.1.2:53:53/udp"
     volumes:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf

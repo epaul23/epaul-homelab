@@ -12,7 +12,7 @@ services:
    
     volumes:
       - ./config:/config
-      - /mnt/e/Downloads:/downloads
+      - /mnt/graid/Downloads:/downloads
 
     ports:
       - "8082:8082"

@@ -10,5 +10,5 @@ services:
     volumes:
       - ./config:/config
       - ./cache:/cache
-      - /mnt/e/Media/Movies:/media/movies:ro
-      - "/mnt/e/Media/TV Shows:/media/tv:ro"
+      - /mnt/graid/Media/Movies:/media/movies:ro
+      - "/mnt/graid/Media/TV Shows:/media/tv:ro"

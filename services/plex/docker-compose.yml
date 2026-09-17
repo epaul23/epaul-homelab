@@ -10,7 +10,7 @@ services:
     volumes:
       - ./config:/config
       - ./transcode:/transcode
-      - /mnt/e/Media/Movies:/data/movies:ro
-      - "/mnt/e/Media/TV Shows:/data/tv:ro"
+      - /mnt/graid/Media/Movies:/data/movies:ro
+      - "/mnt/graid/Media/TV Shows:/data/tv:ro"
 
     restart: unless-stopped
