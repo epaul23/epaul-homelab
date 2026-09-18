@@ -47,15 +47,151 @@ function renderOverviewFolders(folders) {
   });
 }
 
+function drawOverviewChart() {
+  const canvas = overviewElement("overviewChart");
+  const context = canvas.getContext("2d");
+  const bounds = canvas.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+
+  canvas.width = Math.max(1, Math.round(bounds.width * ratio));
+  canvas.height = Math.max(1, Math.round(bounds.height * ratio));
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  context.clearRect(0, 0, bounds.width, bounds.height);
+
+  const now = Date.now();
+  const start = now - 24 * 60 * 60 * 1000;
+  const samples = overviewSamples
+    .map((sample) => ({
+      temperature: Number(sample.temperature),
+      timestamp: new Date(sample.timestamp).getTime()
+    }))
+    .filter((sample) => Number.isFinite(sample.temperature) && Number.isFinite(sample.timestamp) && sample.timestamp >= start)
+    .sort((a, b) => a.timestamp - b.timestamp);
+
+  if (samples.length < 2) {
+    overviewElement("overviewChartEmpty").classList.add("show");
+    return;
+  }
+  overviewElement("overviewChartEmpty").classList.remove("show");
+
+  const temperatures = samples.map((sample) => sample.temperature);
+  const dataMinimum = Math.min(...temperatures);
+  const dataMaximum = Math.max(...temperatures);
+  const center = (dataMinimum + dataMaximum) / 2;
+  const span = Math.max(6, dataMaximum - dataMinimum + 4);
+  let minimumY = Math.floor(center - span / 2);
+  let maximumY = Math.ceil(center + span / 2);
+  const showWarningLine = dataMaximum >= 57;
+  if (showWarningLine) maximumY = Math.max(62, maximumY);
+
+  const padding = { top: 8, right: 8, bottom: 16, left: 27 };
+  const width = bounds.width - padding.left - padding.right;
+  const height = bounds.height - padding.top - padding.bottom;
+  const xFor = (time) => padding.left + ((time - start) / (now - start)) * width;
+  const yFor = (temp) => padding.top + ((maximumY - temp) / (maximumY - minimumY)) * height;
+  const points = samples.map((sample) => ({ x: xFor(sample.timestamp), y: yFor(sample.temperature) }));
+
+  function traceSmoothLine() {
+    context.beginPath();
+    context.moveTo(points[0].x, points[0].y);
+    for (let index = 1; index < points.length - 1; index += 1) {
+      const midpointX = (points[index].x + points[index + 1].x) / 2;
+      const midpointY = (points[index].y + points[index + 1].y) / 2;
+      context.quadraticCurveTo(points[index].x, points[index].y, midpointX, midpointY);
+    }
+    const last = points[points.length - 1];
+    const beforeLast = points[points.length - 2];
+    context.quadraticCurveTo(beforeLast.x, beforeLast.y, last.x, last.y);
+  }
+
+  context.font = "8px system-ui";
+  context.fillStyle = "#73869a";
+  context.strokeStyle = "rgba(142,160,179,.12)";
+  context.lineWidth = 1;
+
+  [minimumY, (minimumY + maximumY) / 2, maximumY].forEach((value) => {
+    const y = yFor(value);
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(bounds.width - padding.right, y);
+    context.stroke();
+    context.textAlign = "right";
+    context.fillText(`${Math.round(value)}\u00B0`, padding.left - 4, y + 3);
+  });
+
+  [start, start + 12 * 60 * 60 * 1000, now].forEach((time) => {
+    const x = xFor(time);
+    context.beginPath();
+    context.moveTo(x, padding.top);
+    context.lineTo(x, bounds.height - padding.bottom);
+    context.stroke();
+  });
+
+  if (showWarningLine) {
+    context.save();
+    context.setLineDash([4, 4]);
+    context.strokeStyle = "rgba(255,101,122,.55)";
+    context.beginPath();
+    context.moveTo(padding.left, yFor(60));
+    context.lineTo(bounds.width - padding.right, yFor(60));
+    context.stroke();
+    context.restore();
+  }
+
+  const gradient = context.createLinearGradient(0, padding.top, 0, bounds.height - padding.bottom);
+  gradient.addColorStop(0, "rgba(102,183,255,.38)");
+  gradient.addColorStop(.65, "rgba(102,183,255,.10)");
+  gradient.addColorStop(1, "rgba(102,183,255,0)");
+
+  traceSmoothLine();
+  context.lineTo(points[points.length - 1].x, bounds.height - padding.bottom);
+  context.lineTo(points[0].x, bounds.height - padding.bottom);
+  context.closePath();
+  context.fillStyle = gradient;
+  context.fill();
+
+  traceSmoothLine();
+  context.strokeStyle = "rgba(102,183,255,.22)";
+  context.lineWidth = 6;
+  context.stroke();
+
+  traceSmoothLine();
+  context.strokeStyle = "#66b7ff";
+  context.lineWidth = 2.2;
+  context.lineJoin = "round";
+  context.lineCap = "round";
+  context.stroke();
+
+  const latest = points[points.length - 1];
+  context.beginPath();
+  context.arc(latest.x, latest.y, 4.5, 0, Math.PI * 2);
+  context.fillStyle = "rgba(102,183,255,.2)";
+  context.fill();
+  context.beginPath();
+  context.arc(latest.x, latest.y, 2.2, 0, Math.PI * 2);
+  context.fillStyle = "#9bd2ff";
+  context.fill();
+
+  context.fillStyle = "#73869a";
+  context.textAlign = "left";
+  context.fillText("24h", padding.left, bounds.height - 2);
+  context.textAlign = "center";
+  context.fillText("12h", xFor(start + 12 * 60 * 60 * 1000), bounds.height - 2);
+  context.textAlign = "right";
+  context.fillText("now", bounds.width - padding.right, bounds.height - 2);
+}
+
 function updateOverviewStatus(disk) {
   const degree = "\u00B0";
+  const reportedHealth = String(disk.health || "Unavailable");
+  const displayHealth = reportedHealth.toUpperCase() === "PASSED" ? "Healthy" : reportedHealth;
   setOverviewText("overviewTemp", disk.temperature ?? "--");
   setOverviewText("overviewTempState", disk.temperatureState || "Unavailable");
   setOverviewText("overviewRaid", disk.raid || "RAID 1");
-  setOverviewText("overviewHealth", disk.health || "Unavailable");
+  setOverviewText("overviewHealth", displayHealth);
   setOverviewText("overviewHours", formatOverviewHours(disk.powerOnHours));
   overviewElement("overviewTempState").className = `state ${disk.temperatureLevel || "unknown"}`;
-  overviewElement("overviewHealth").className = disk.health === "Healthy" ? "healthy" : "";
+  overviewElement("overviewHealth").className = displayHealth === "Healthy" ? "healthy" : "";
   return disk.online && disk.temperature != null ? `${disk.temperature}${degree}C` : "Drive unavailable";
 }
 
@@ -109,170 +245,4 @@ async function refreshOverview() {
 
 window.addEventListener("resize", drawOverviewChart);
 refreshOverview();
-setInterval(refreshOverview, 30000);
-
-/* Polished temperature trend — overrides the original chart only */
-function drawOverviewChart() {
-  const canvas = overviewElement("overviewChart");
-  const ctx = canvas.getContext("2d");
-  const box = canvas.getBoundingClientRect();
-  const ratio = window.devicePixelRatio || 1;
-
-  canvas.width = Math.max(1, Math.round(box.width * ratio));
-  canvas.height = Math.max(1, Math.round(box.height * ratio));
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  ctx.clearRect(0, 0, box.width, box.height);
-
-  const now = Date.now();
-  const start = now - (24 * 60 * 60 * 1000);
-
-  const samples = overviewSamples
-    .map(sample => ({
-      temp: Number(sample.temperature),
-      time: new Date(sample.timestamp).getTime()
-    }))
-    .filter(sample =>
-      Number.isFinite(sample.temp) &&
-      Number.isFinite(sample.time) &&
-      sample.time >= start
-    )
-    .sort((a, b) => a.time - b.time);
-
-  if (samples.length < 2) {
-    overviewElement("overviewChartEmpty").classList.add("show");
-    return;
-  }
-
-  overviewElement("overviewChartEmpty").classList.remove("show");
-
-  const temperatures = samples.map(sample => sample.temp);
-  const lowest = Math.min(...temperatures);
-  const highest = Math.max(...temperatures);
-  const center = (lowest + highest) / 2;
-  const range = Math.max(6, highest - lowest + 4);
-
-  const minY = Math.floor(center - range / 2);
-  const maxY = Math.ceil(center + range / 2);
-
-  const padding = {
-    top: 8,
-    right: 9,
-    bottom: 16,
-    left: 28
-  };
-
-  const width = box.width - padding.left - padding.right;
-  const height = box.height - padding.top - padding.bottom;
-
-  const getX = time =>
-    padding.left + ((time - start) / (now - start)) * width;
-
-  const getY = temp =>
-    padding.top + ((maxY - temp) / (maxY - minY)) * height;
-
-  const points = samples.map(sample => ({
-    x: getX(sample.time),
-    y: getY(sample.temp)
-  }));
-
-  function drawSmoothPath() {
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-
-    for (let i = 1; i < points.length - 1; i++) {
-      const middleX = (points[i].x + points[i + 1].x) / 2;
-      const middleY = (points[i].y + points[i + 1].y) / 2;
-
-      ctx.quadraticCurveTo(
-        points[i].x,
-        points[i].y,
-        middleX,
-        middleY
-      );
-    }
-
-    const previous = points[points.length - 2];
-    const last = points[points.length - 1];
-
-    ctx.quadraticCurveTo(previous.x, previous.y, last.x, last.y);
-  }
-
-  ctx.font = "8px system-ui";
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = "rgba(142,160,179,.12)";
-  ctx.fillStyle = "#73869a";
-
-  [minY, (minY + maxY) / 2, maxY].forEach(value => {
-    const y = getY(value);
-
-    ctx.beginPath();
-    ctx.moveTo(padding.left, y);
-    ctx.lineTo(box.width - padding.right, y);
-    ctx.stroke();
-
-    ctx.textAlign = "right";
-    ctx.fillText(`${Math.round(value)}°`, padding.left - 4, y + 3);
-  });
-
-  [start, start + (12 * 60 * 60 * 1000), now].forEach(time => {
-    const x = getX(time);
-
-    ctx.beginPath();
-    ctx.moveTo(x, padding.top);
-    ctx.lineTo(x, box.height - padding.bottom);
-    ctx.stroke();
-  });
-
-  const gradient = ctx.createLinearGradient(
-    0,
-    padding.top,
-    0,
-    box.height - padding.bottom
-  );
-
-  gradient.addColorStop(0, "rgba(102,183,255,.40)");
-  gradient.addColorStop(0.65, "rgba(102,183,255,.10)");
-  gradient.addColorStop(1, "rgba(102,183,255,0)");
-
-  drawSmoothPath();
-  ctx.lineTo(points[points.length - 1].x, box.height - padding.bottom);
-  ctx.lineTo(points[0].x, box.height - padding.bottom);
-  ctx.closePath();
-  ctx.fillStyle = gradient;
-  ctx.fill();
-
-  drawSmoothPath();
-  ctx.strokeStyle = "rgba(102,183,255,.22)";
-  ctx.lineWidth = 7;
-  ctx.stroke();
-
-  drawSmoothPath();
-  ctx.strokeStyle = "#66b7ff";
-  ctx.lineWidth = 2.2;
-  ctx.lineJoin = "round";
-  ctx.lineCap = "round";
-  ctx.stroke();
-
-  const latest = points[points.length - 1];
-
-  ctx.beginPath();
-  ctx.arc(latest.x, latest.y, 5, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(102,183,255,.22)";
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(latest.x, latest.y, 2.3, 0, Math.PI * 2);
-  ctx.fillStyle = "#b5deff";
-  ctx.fill();
-
-  ctx.fillStyle = "#73869a";
-
-  ctx.textAlign = "left";
-  ctx.fillText("24h", padding.left, box.height - 2);
-
-  ctx.textAlign = "center";
-  ctx.fillText("12h", getX(start + (12 * 60 * 60 * 1000)), box.height - 2);
-
-  ctx.textAlign = "right";
-  ctx.fillText("now", box.width - padding.right, box.height - 2);
-}
+setInterval(refreshOverview, 15000);
