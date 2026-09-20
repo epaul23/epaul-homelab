@@ -16,7 +16,7 @@ The Acer runs the services. The Legion is my main command centre, and my phone g
 
 I reused my Acer instead of buying a Raspberry Pi. It was already available, and it lets me experiment with several services on one machine.
 
-It runs Windows, Ubuntu through WSL, and Docker Desktop. Not the simplest possible server setup, but troubleshooting it has become part of the learning.
+It now runs Ubuntu directly, with Docker Engine and Docker Compose hosting most services. I started with Windows and WSL, then migrated to native Ubuntu to make Acer a dedicated server.
 
 **Legion — the command centre**
 
@@ -26,7 +26,7 @@ My everyday computer is also where I manage the lab. I open dashboards, connect 
 
 A SanDisk Professional G-RAID MIRROR is connected to Acer with **2× 2 TB Toshiba MG04ACA200N enterprise SATA HDDs**, running at 7200 RPM in RAID 1.
 
-It stores files for the homelab and is shared across my network so I can access it from other devices.
+It is mounted at `/mnt/graid` on Acer. Samba shares it as `GRAID_MAIN`, so I can also open it as a network drive from Windows.
 
 ## Built on a budget
 
@@ -53,10 +53,14 @@ The goal was to learn with hardware I already had instead of buying a ready-made
 | Nextcloud        | Self-hosted file access and sync                            |
 | Karakeep         | Bookmarking and read-it-later service                       |
 | Dozzle           | Docker container log viewer                                 |
+| qBittorrent      | Downloads to the G-RAID                                     |
+| Speedtest Tracker | Scheduled internet speed tests and history                 |
 
 Most services run in Docker.
 
-The G-RAID dashboard is different. It runs directly through Windows PowerShell because Windows has access to the storage information I need. Windows Task Scheduler keeps it running in the background and is configured to restart it if the process stops.
+The G-RAID dashboard is different. It is a small Python service on Ubuntu, managed by systemd. It reads drive health through `smartctl` and serves a compact overview in Homarr.
+
+Speedtest Tracker runs a speed test every four hours and shows the results in Homarr.
 
 Tailscale gives me private remote access to Acer. SSH lets me manage it from the Legion without moving to the server.
 
@@ -67,7 +71,7 @@ Tailscale gives me private remote access to Acer. SSH lets me manage it from the
   Tailscale
      │
      ▼
-Acer Server
+Acer Server (Ubuntu)
 ├── Docker
 │   ├── Dashboards & monitoring
 │   │   ├── Homarr
@@ -75,27 +79,30 @@ Acer Server
 │   │   ├── Uptime Kuma
 │   │   ├── Glances
 │   │   ├── Dozzle
-│   │   └── Docker Stats
+│   │   ├── Docker Stats
+│   │   └── Speedtest Tracker
 │   │
 │   ├── Data & media
 │   │   ├── Immich
 │   │   ├── Jellyfin
 │   │   ├── Plex
 │   │   ├── Nextcloud
-│   │   └── Karakeep
+│   │   ├── Karakeep
+│   │   └── qBittorrent
 │   │
 │   └── Network
 │       └── AdGuard Home
 │
-└── Windows PowerShell
-    └── G-RAID Dashboard
-             │
-             ▼
-       G-RAID RAID 1
+├── systemd
+│   └── G-RAID Dashboard (Python)
+│
+└── /mnt/graid
+    └── G-RAID RAID 1 (shared with Samba)
 ```
+
 ## Custom G-RAID monitoring
 
-I built a small PowerShell web server to monitor the G-RAID directly from Windows.
+I built a small Python web server to monitor the G-RAID directly from Ubuntu.
 
 It:
 
@@ -104,9 +111,9 @@ It:
 - Stores temperature history in CSV and keeps a rolling **7 days** of data.
 - Periodically scans folder sizes and caches the results instead of rescanning on every page load.
 - Exposes simple API endpoints for status, storage, and temperature history.
-- Runs in the background through Windows Task Scheduler and is configured to restart if the process stops.
+- Runs in the background as a systemd service.
 
-I built it this way because the information I wanted was already available directly through Windows. Forcing the monitor into Docker would have added more complexity without solving the actual problem.
+The dashboard reads SMART information with `smartctl` and disk usage from the mounted G-RAID. It stays separate from Docker because it needs direct access to the host's storage devices. Its overview is embedded in Homarr.
 
 ## My little corner of the network
 
@@ -134,9 +141,7 @@ Acer is currently NETGEAR’s DNS server. While it restarts, devices can stay co
 
 **Not everything belongs in Docker.**
 
-My G-RAID dashboard needs Windows storage information that is easier to access directly from PowerShell.
-
-Instead of forcing it into Docker, I let Windows Task Scheduler run it in the background and restart it if needed.
+My G-RAID dashboard needs direct access to the host's storage devices, so I run it as a Python systemd service instead of a container.
 
 ### Debugging the G-RAID cooling
 
@@ -154,7 +159,7 @@ The G-RAID MIRROR currently runs two drives in RAID 1.
 
 That gives me protection against one drive failing, but RAID is not a backup. I still want separate copies of important files as the storage setup grows.
 
-Jellyfin and Plex read their movie and TV libraries from the G-RAID, and Nextcloud also uses storage on the array.
+Jellyfin and Plex read their movie and TV libraries from the G-RAID. Immich, Nextcloud, and qBittorrent also use folders on the array; their application and database data live separately on Acer or in Docker volumes.
 
 ## Next experiments
 
