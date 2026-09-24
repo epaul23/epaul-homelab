@@ -1,0 +1,28 @@
+services:
+  backrest:
+    image: ghcr.io/garethgeorge/backrest:latest
+    container_name: backrest
+    hostname: backrest
+
+    volumes:
+      - ./data:/data
+      - ./config:/config
+      - ./cache:/cache
+      - ./tmp:/tmp
+      - /srv/backups/backrest-internal:/repos
+      - /mnt/graid:/userdata/graid:ro
+      - /var/lib/docker/volumes/nextcloud_nextcloud_html/_data:/userdata/nextcloud/html:ro
+      - /var/lib/docker/volumes/nextcloud_nextcloud_data/_data:/userdata/nextcloud/data:ro
+      - /srv/backup-staging/nextcloud:/userdata/nextcloud/db:ro
+
+    environment:
+      - BACKREST_DATA=/data
+      - BACKREST_CONFIG=/config/config.json
+      - XDG_CACHE_HOME=/cache
+      - TMPDIR=/tmp
+      - TZ=America/Moncton
+
+    ports:
+      - "9898:9898"
+
+    restart: unless-stopped

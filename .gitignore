@@ -22,3 +22,9 @@ services/jellyfin/config/
 services/jellyfin/cache/
 services/jellyfin/windows-data-copy/
 services/qbittorrent/config/
+
+# Backrest runtime data / secrets
+services/backrest/config/
+services/backrest/data/
+services/backrest/cache/
+services/backrest/tmp/
