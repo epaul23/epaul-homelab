@@ -12,3 +12,13 @@ services:
       - ./cache:/cache
       - /mnt/graid/Media/Movies:/media/movies:ro
       - "/mnt/graid/Media/TV Shows:/media/tv:ro"
+
+    runtime: nvidia
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
