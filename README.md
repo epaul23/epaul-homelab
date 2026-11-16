@@ -38,23 +38,24 @@ The goal was to learn with hardware I already had instead of buying a ready-made
 
 ## What’s running on Acer
 
-| Service          | What I use it for                                           |
-| ---------------- | ----------------------------------------------------------- |
-| AdGuard Home     | DNS filtering for my NETGEAR network                        |
-| Uptime Kuma      | Service monitoring and Discord alerts                       |
-| Immich           | Self-hosted photo and video library                         |
-| Homarr           | Main homelab dashboard                                      |
-| Glances          | CPU, memory, disk, and system monitoring                    |
-| Homepage         | Another dashboard I experimented with                       |
-| Docker Stats     | Gives Homarr limited access to Docker stats                 |
-| G-RAID Dashboard | Custom storage, health, temperature, and history monitoring |
-| Plex             | Self-hosted movie and TV media server                       |
-| Jellyfin         | Self-hosted movie and TV media server (open-source)         |
-| Nextcloud        | Self-hosted file access and sync                            |
-| Karakeep         | Bookmarking and read-it-later service                       |
-| Dozzle           | Docker container log viewer                                 |
-| qBittorrent      | Downloads to the G-RAID                                     |
-| Speedtest Tracker | Scheduled internet speed tests and history                 |
+| Service           | What I use it for                                           |
+| ----------------- | ----------------------------------------------------------- |
+| AdGuard Home      | DNS filtering for my NETGEAR network                        |
+| Uptime Kuma       | Service monitoring and Discord alerts                       |
+| Immich            | Self-hosted photo and video library                         |
+| Homarr            | Main homelab dashboard                                      |
+| Glances           | CPU, memory, disk, and system monitoring                    |
+| Homepage          | Another dashboard I experimented with                       |
+| Docker Stats      | Gives Homarr limited access to Docker stats                 |
+| G-RAID Dashboard  | Custom storage, health, temperature, and history monitoring |
+| Plex              | Self-hosted movie and TV media server                       |
+| Jellyfin          | Self-hosted movie and TV media server (open-source)         |
+| Nextcloud         | Self-hosted file access and sync                            |
+| Karakeep          | Bookmarking and read-it-later service                       |
+| Backrest          | Scheduled backup jobs and restore management                |
+| Dozzle            | Docker container log viewer                                 |
+| qBittorrent       | Downloads to the G-RAID                                     |
+| Speedtest Tracker | Scheduled internet speed tests and history                  |
 
 Most services run in Docker.
 
@@ -65,6 +66,7 @@ Speedtest Tracker runs a speed test every four hours and shows the results in Ho
 Tailscale gives me private remote access to Acer. SSH lets me manage it from the Legion without moving to the server.
 
 ## How it fits together
+
 ```text
  Remote access
      │
@@ -89,6 +91,9 @@ Acer Server (Ubuntu)
 │   │   ├── Nextcloud
 │   │   ├── Karakeep
 │   │   └── qBittorrent
+│   │
+│   ├── Backups
+│   │   └── Backrest
 │   │
 │   └── Network
 │       └── AdGuard Home
@@ -157,15 +162,33 @@ That also pushed me to add historical temperature monitoring instead of relying 
 
 The G-RAID MIRROR currently runs two drives in RAID 1.
 
-That gives me protection against one drive failing, but RAID is not a backup. I still want separate copies of important files as the storage setup grows.
+That protects against one drive failing, but RAID is not a backup. Backrest now handles scheduled backup jobs. I still need to regularly test restores and add an off-site copy of important data.
 
 Jellyfin and Plex read their movie and TV libraries from the G-RAID. Immich, Nextcloud, and qBittorrent also use folders on the array; their application and database data live separately on Acer or in Docker volumes.
+
+## HomeLab maintenance
+
+Routine maintenance is handled by `scripts/homelab-maintenance.sh`.
+
+The script:
+
+- Updates every Docker Compose service.
+- Reports whether each service is current, updated, started, or failed.
+- Checks that the G-RAID Dashboard systemd service is running.
+- Removes unused Docker images.
+- Saves detailed output to `~/.local/state/homelab-update/latest.log`.
+
+Run it with:
+
+```bash
+~/homelab/scripts/homelab-maintenance.sh
+```
 
 ## Next experiments
 
 Still on my list:
 
-- Improve the backup setup.
+- Test Backrest restores and add an off-site backup.
 - Keep improving remote monitoring.
 - Add useful services without turning the server into a pile of containers I do not actually need.
 - Keep improving the G-RAID monitoring dashboard.
