@@ -8,7 +8,7 @@ The Acer runs the services. The Legion is my main command centre, and my phone g
 
 ## Homelab dashboard
 
-![Emil's Homelab dashboard](docs/images/homelab-dashboard.png)
+![Emil's Homelab dashboard](docs/images/dashboard.png)
 
 ## The hardware
 
