@@ -40,7 +40,9 @@ services:
     depends_on:
       - db
       - redis
-
+    networks:
+      - default
+      - homarr_default
   cron:
     image: nextcloud:apache
     container_name: nextcloud-cron
@@ -58,3 +60,7 @@ volumes:
   nextcloud_db:
   nextcloud_html:
   nextcloud_data:
+
+networks:
+  homarr_default:
+    external: true
